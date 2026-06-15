@@ -3,3 +3,5 @@ uvicorn[standard]
 sqlalchemy
 psycopg
 psycopg2-binary
+pydantic[email]
+pwdlib[argon2]
