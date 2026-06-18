@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -5,9 +7,13 @@ from .routers import auth, post, user, vote
 from . import models, schemas
 from .database import engine
 
-models.Base.metadata.create_all(bind=engine) #This will create the tables in the database if they do not exist
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    models.Base.metadata.create_all(bind=engine)
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 origins = ["*"]
 
