@@ -13,6 +13,12 @@ router = APIRouter(
 @router.post("/", status_code = status.HTTP_201_CREATED, response_model=schemas.UserOut)
 def create_users(user:UserCreate, db: Session = Depends(get_db)):
     user_data = user.model_dump()
+
+    #if user email is already exist, raise exception
+    existing_user = db.query(models.User).filter(models.User.email == user_data["email"]).first()
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+
     raw_password = user_data.pop("password")
     hashed_password = hashlib.sha256(raw_password.encode()).hexdigest()
     new_user = models.User(**user_data, password=hashed_password)

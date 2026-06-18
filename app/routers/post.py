@@ -7,18 +7,23 @@ import hashlib
 from typing import List
 import oauth
 from typing import Optional
+from sqlalchemy import func
 
 router = APIRouter(
     prefix="/posts",
     tags=["Posts"]
 )
 
-@router.get("/", response_model=List[schemas.Post])
-def get_posts(db: Session = Depends(get_db), limit:int = 10, skip:int=0, search:Optional[str]=""):
+@router.get("/", response_model=List[schemas.PostOut])
+# @router.get("/")
+def get_posts(db: Session = Depends(get_db), limit:int = 40, skip:int=0, search:Optional[str]=""):
     # cursor.execute("SELECT * FROM posts")
     # posts = cursor.fetchall()
-    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
-    return posts
+
+    # posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+
+    results = db.query(models.Post, func.count(models.Votes.post_id).label("votes")).join(models.Votes, models.Votes.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+    return results
  
 @router.post("/", status_code = status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_posts(post:PostBase, db: Session = Depends(get_db), get_current_user_id: int = Depends(oauth.get_current_user)):
@@ -34,20 +39,26 @@ def create_posts(post:PostBase, db: Session = Depends(get_db), get_current_user_
 
     return new_post
 
-@router.post("/{id}", response_model=schemas.Post)
+@router.get("/{id}", response_model=schemas.PostOut)
 def get_post_by_id(id:int, db: Session = Depends(get_db), get_current_user: int = Depends(oauth.get_current_user)):
     # cursor.execute("SELECT * FROM posts WHERE id = %s", (str(id),))
     # fetched_post = cursor.fetchone()
 
     fetched_post = db.query(models.Post).filter(models.Post.id == id).first()
+    votes = (
+        db.query(func.count(models.Votes.post_id))
+        .filter(models.Votes.post_id == id)
+        .scalar()
+    )
     
     if not fetched_post:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"Post with id : {id} not found")
     
+    print(fetched_post.owner_id)
     if fetched_post.owner_id != get_current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="user not authorized to perform this action")
 
-    return fetched_post
+    return {"Post": fetched_post, "votes": votes}
 
 @router.delete("/{id}")
 def delete_post(id:int, db: Session = Depends(get_db), get_current_user_id: int = Depends(oauth.get_current_user)):

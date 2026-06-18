@@ -1,20 +1,12 @@
-from typing import Optional
-from fastapi import FastAPI, Response, status, HTTPException, Depends
-from fastapi import Body
-from random import randrange
+from fastapi import FastAPI
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from sqlalchemy.orm import Session
-from database import get_db 
-from routers import post,user,auth
+from routers import post,user,auth,vote
+from fastapi.middleware.cors import CORSMiddleware
 
 
-try:
-    from .import models, schemas
-    from .database import engine
-except ImportError:
-    import models, schemas
-    from database import engine
+import models, schemas
+from database import engine
 
 from schemas import PostBase, UserCreate, UserOut
 
@@ -22,6 +14,15 @@ models.Base.metadata.create_all(bind=engine) #This will create the tables in the
 
 app = FastAPI()
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 #this method is used when we use pgsql with SQL query not the ORM
 try:
     conn = psycopg2.connect(
@@ -41,6 +42,7 @@ except Exception as e:
 app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(vote.router)
 
 @app.get("/")
 def root():
