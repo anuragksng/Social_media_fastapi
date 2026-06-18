@@ -5,8 +5,7 @@ import os
 
 load_dotenv()
 
-# Keep the SQLAlchemy connection aligned with the working psycopg2 connection in main.py.
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 # 2. Create the engine, it is responsible to connect sqlalchemy to postgres
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

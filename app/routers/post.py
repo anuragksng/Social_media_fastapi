@@ -1,11 +1,10 @@
-import models, schemas
+from .. import models, schemas, oauth
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
-from database import get_db 
-from schemas import PostBase, UserCreate, UserOut
+from ..database import get_db 
+from ..schemas import PostBase, UserCreate, UserOut
 import hashlib
 from typing import List
-import oauth
 from typing import Optional
 from sqlalchemy import func
 

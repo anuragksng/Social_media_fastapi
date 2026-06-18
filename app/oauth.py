@@ -1,16 +1,15 @@
 import jwt
 from jwt.exceptions import PyJWTError
 from datetime import datetime, timedelta, timezone
-import schemas
+from . import schemas
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import os
 from dotenv import load_dotenv
-from pathlib import Path
 
-import models
-from database import get_db
+from . import models
+from .database import get_db
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl='login')
 
