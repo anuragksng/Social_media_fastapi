@@ -7,10 +7,10 @@ jobs:
     enviroment:
       name: testing
     env:
-      SECRET_KEY = ${{SECRET_KEY}}
-      ALGORITHM = ${{ALGORITHM}}
-      ACCESS_TOKEN_EXPIRE_MINUTES = ${{ACCESS_TOKEN_EXPIRE_MINUTES}}
-      SQLALCHEMY_DATABASE_URL = ${{SQLALCHEMY_DATABASE_URL}}
+      SECRET_KEY = ${{secrets.SECRET_KEY}}
+      ALGORITHM = ${{secrets.ALGORITHM}}
+      ACCESS_TOKEN_EXPIRE_MINUTES = ${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
+      SQLALCHEMY_DATABASE_URL = ${{secrets.SQLALCHEMY_DATABASE_URL}}
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repo  # Added 'name:' and proper spacing
