@@ -4,25 +4,32 @@ on: [push, pull_request]
 
 jobs:
   job1:
-    enviroment:
-      name: testing
-    env:
-      SECRET_KEY = ${{secrets.SECRET_KEY}}
-      ALGORITHM = ${{secrets.ALGORITHM}}
-      ACCESS_TOKEN_EXPIRE_MINUTES = ${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
-      SQLALCHEMY_DATABASE_URL = ${{secrets.SQLALCHEMY_DATABASE_URL}}
     runs-on: ubuntu-latest
+    environment:
+      name: testing    # Fixed spelling from "enviroment"
+    
+    # Fixed '=' to ':' syntax for all environment variables
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      ALGORITHM: ${{ secrets.ALGORITHM }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+      SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+
     steps:
-      - name: pulling git repo  # Added 'name:' and proper spacing
-        uses: actions/checkout@v4  # Added missing dash and changed v7 to v4
+      - name: pulling git repo
+        uses: actions/checkout@v4
+
       - name: Install python version 3.13
-        uses: actions/setup-python@v6 
+        uses: actions/setup-python@v6
         with:
           python-version: '3.13' 
+
       - name: update pip
         run: python -m pip install --upgrade pip
+
       - name: install all dependencies
         run: pip install -r requirements.txt
+
       - name: test with pytest
         run: |
           pip install pytest
