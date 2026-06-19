@@ -6,14 +6,29 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     environment:
-      name: testing    # Fixed spelling from "enviroment"
+      name: testing    
     
-    # Fixed '=' to ':' syntax for all environment variables
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       ALGORITHM: ${{ secrets.ALGORITHM }}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
-      SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+      # Hardcode this for local testing container instead of using production secrets
+      SQLALCHEMY_DATABASE_URL: "postgresql://postgres_user:postgres_test@localhost:5432/test_db"
+
+    services:
+      postgres:
+        image: postgres:latest # Added version tag explicitly
+        env:
+          POSTGRES_USER: "postgres_user"
+          POSTGRES_PASSWORD: "postgres_test" # Removed the duplicate entry
+          POSTGRES_DB: "test_db"
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - name: pulling git repo
