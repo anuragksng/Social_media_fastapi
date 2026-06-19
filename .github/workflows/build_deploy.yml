@@ -4,11 +4,13 @@ on: [push, pull_request]
 
 jobs:
   job1:
+    enviroment:
+      name: testing
     env:
-      SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-      ALGORITHM = "HS256"
-      ACCESS_TOKEN_EXPIRE_MINUTES = 700
-      SQLALCHEMY_DATABASE_URL = "postgresql+psycopg://postgres:admin123@127.0.0.1:5432/postgres"
+      SECRET_KEY = ${{SECRET_KEY}}
+      ALGORITHM = ${{ALGORITHM}}
+      ACCESS_TOKEN_EXPIRE_MINUTES = ${{ACCESS_TOKEN_EXPIRE_MINUTES}}
+      SQLALCHEMY_DATABASE_URL = ${{SQLALCHEMY_DATABASE_URL}}
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repo  # Added 'name:' and proper spacing
